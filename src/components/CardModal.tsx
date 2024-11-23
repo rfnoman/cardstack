@@ -1,12 +1,12 @@
 'use client';
 
-import type { Card } from "@prisma/client";
-import { useRef, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import Input from "./ui/Input";
+import type { Card } from '@prisma/client';
+import { useRef, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Input from './ui/Input';
 import { Dialog } from '@headlessui/react';
 import { XMarkIcon, BuildingOfficeIcon, PhoneIcon, GlobeAltIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
-import { z } from "zod";
+import { z } from 'zod';
 
 type CardWithOwner = Card & {
   owner: {
@@ -24,7 +24,7 @@ export default function CardModal({ card, onClose }: CardModalProps) {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
-  const [shareEmail, setShareEmail] = useState("");
+  const [shareEmail, setShareEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -35,9 +35,9 @@ export default function CardModal({ card, onClose }: CardModalProps) {
       }
     }
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [onClose]);
 
@@ -58,19 +58,19 @@ export default function CardModal({ card, onClose }: CardModalProps) {
 
     try {
       const res = await fetch(`/api/cards/${card.id}/share`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email: shareEmail }),
       });
 
       if (!res.ok) {
-        throw new Error("Failed to share card");
+        throw new Error('Failed to share card');
       }
 
       setIsSharing(false);
-      setShareEmail("");
+      setShareEmail('');
     } catch (error) {
       if (error instanceof Error) {
         setError(error.message);
@@ -81,11 +81,11 @@ export default function CardModal({ card, onClose }: CardModalProps) {
   async function handleDelete() {
     try {
       const res = await fetch(`/api/cards/${card.id}`, {
-        method: "DELETE",
+        method: 'DELETE',
       });
 
       if (!res.ok) {
-        throw new Error("Failed to delete card");
+        throw new Error('Failed to delete card');
       }
 
       onClose();
@@ -106,92 +106,132 @@ export default function CardModal({ card, onClose }: CardModalProps) {
       <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
 
       <div className="fixed inset-0 flex items-center justify-center p-4">
-        <Dialog.Panel className="mx-auto max-w-lg w-full bg-white rounded-xl shadow-lg">
-          <div className="relative">
-            <button
-              onClick={onClose}
-              className="absolute right-4 top-4 text-gray-400 hover:text-gray-500"
-            >
-              <XMarkIcon className="h-6 w-6" />
-            </button>
+        <Dialog.Panel 
+          ref={modalRef}
+          className="mx-auto max-w-lg w-full bg-white rounded-xl shadow-lg"
+        >
+          <div className="p-6">
+            <div className="flex justify-between items-center mb-4">
+              <Dialog.Title className="text-lg font-medium text-gray-900">
+                View Business Card
+              </Dialog.Title>
+              <button
+                onClick={onClose}
+                className="text-gray-400 hover:text-gray-500"
+              >
+                <XMarkIcon className="h-6 w-6" />
+              </button>
+            </div>
 
-            <div className="p-6">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-                <div>
-                  <Dialog.Title className="text-2xl font-semibold text-gray-900">
-                    {card.name}
-                  </Dialog.Title>
-                  {card.title && (
-                    <p className="mt-1 text-gray-600">{card.title}</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Card Image */}
-              {card.imageUrl && (
-                <div className="relative w-full aspect-[1.75] mb-4">
-                  <img
-                    src={card.imageUrl}
-                    alt={`${card.name}'s business card`}
-                    className="w-full h-full object-cover rounded-lg shadow-sm"
-                    onError={(e) => {
-                      const img = e.target as HTMLImageElement;
-                      img.src = card.imageUrl || '';
-                      img.onerror = null;
-                    }}
-                  />
+            <div className="space-y-4">
+              {error && (
+                <div className="bg-red-50 text-red-700 p-4 rounded-md text-sm">
+                  {error}
                 </div>
               )}
 
-              <div className="mt-6 space-y-4">
-                {card.company && (
-                  <div className="flex items-center space-x-2">
-                    <BuildingOfficeIcon className="h-5 w-5 text-gray-400" />
-                    <span className="text-gray-900">{card.company}</span>
-                  </div>
-                )}
-                {card.email && (
-                  <div className="flex items-center space-x-2">
-                    <EnvelopeIcon className="h-5 w-5 text-gray-400" />
-                    <a
-                      href={`mailto:${card.email}`}
-                      className="text-blue-600 hover:text-blue-800"
+              {isSharing ? (
+                <form onSubmit={handleShare} className="space-y-4">
+                  <Input
+                    type="email"
+                    label="Email address"
+                    value={shareEmail}
+                    onChange={(e) => setShareEmail(e.target.value)}
+                    required
+                  />
+                  <div className="flex justify-end space-x-3">
+                    <button
+                      type="button"
+                      onClick={() => setIsSharing(false)}
+                      className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
                     >
-                      {card.email}
-                    </a>
-                  </div>
-                )}
-                {card.phone && (
-                  <div className="flex items-center space-x-2">
-                    <PhoneIcon className="h-5 w-5 text-gray-400" />
-                    <a
-                      href={`tel:${card.phone}`}
-                      className="text-blue-600 hover:text-blue-800"
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
                     >
-                      {card.phone}
-                    </a>
+                      Share
+                    </button>
                   </div>
-                )}
-                {card.website && (
-                  <div className="flex items-center space-x-2">
-                    <GlobeAltIcon className="h-5 w-5 text-gray-400" />
-                    <a
-                      href={card.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800"
+                </form>
+              ) : (
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900">
+                      {card.name}
+                    </h3>
+                    {card.title && (
+                      <p className="text-gray-600">{card.title}</p>
+                    )}
+                  </div>
+
+                  {card.company && (
+                    <div className="flex items-center text-gray-500">
+                      <BuildingOfficeIcon className="h-5 w-5 mr-2" />
+                      {card.company}
+                    </div>
+                  )}
+
+                  {card.phone && (
+                    <div className="flex items-center text-gray-500">
+                      <PhoneIcon className="h-5 w-5 mr-2" />
+                      <a href={`tel:${card.phone}`} className="hover:text-blue-600">
+                        {card.phone}
+                      </a>
+                    </div>
+                  )}
+
+                  {card.email && (
+                    <div className="flex items-center text-gray-500">
+                      <EnvelopeIcon className="h-5 w-5 mr-2" />
+                      <a href={`mailto:${card.email}`} className="hover:text-blue-600">
+                        {card.email}
+                      </a>
+                    </div>
+                  )}
+
+                  {card.website && (
+                    <div className="flex items-center text-gray-500">
+                      <GlobeAltIcon className="h-5 w-5 mr-2" />
+                      <a 
+                        href={card.website.startsWith('http') ? card.website : `https://${card.website}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-blue-600"
+                      >
+                        {card.website}
+                      </a>
+                    </div>
+                  )}
+
+                  {card.notes && (
+                    <div className="mt-4">
+                      <h4 className="text-sm font-medium text-gray-900 mb-1">
+                        Notes
+                      </h4>
+                      <p className="text-gray-500 text-sm whitespace-pre-wrap">
+                        {card.notes}
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="flex justify-end space-x-3 mt-6">
+                    <button
+                      onClick={() => setIsSharing(true)}
+                      className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
                     >
-                      {card.website}
-                    </a>
+                      Share
+                    </button>
+                    <button
+                      onClick={handleDelete}
+                      className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
+                    >
+                      Delete
+                    </button>
                   </div>
-                )}
-                {card.notes && (
-                  <div className="mt-4">
-                    <h4 className="text-sm font-medium text-gray-900 mb-2">Notes</h4>
-                    <p className="text-gray-600 whitespace-pre-wrap">{card.notes}</p>
-                  </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </div>
         </Dialog.Panel>

@@ -1,9 +1,9 @@
 'use client';
 
-import { Card } from "@prisma/client";
-import { useState } from "react";
-import CardModal from "./CardModal";
-import { UserCircleIcon } from "@heroicons/react/24/outline";
+import { Card } from '@prisma/client';
+import { useState } from 'react';
+import CardModal from './CardModal';
+import { UserCircleIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
 
 type CardWithOwner = Card & {
@@ -25,7 +25,6 @@ export default function CardList({ cards }: { cards: CardWithOwner[] }) {
           onClick={() => setSelectedCard(card)}
           className="relative group bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer border border-gray-200"
         >
-          {/* Card container with fixed aspect ratio */}
           <div className="relative w-full aspect-[1.75] mb-3">
             {card.imageUrl ? (
               <Image
@@ -35,11 +34,11 @@ export default function CardList({ cards }: { cards: CardWithOwner[] }) {
                 height={200}
                 className="object-cover rounded-md w-full h-full"
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                priority={true}
+                priority
                 onError={(e) => {
                   const img = e.target as HTMLImageElement;
                   img.src = card.imageUrl || '';
-                  img.onerror = null; // Prevent infinite loop
+                  img.onerror = null;
                 }}
               />
             ) : (
