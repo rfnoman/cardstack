@@ -17,6 +17,25 @@
       "static/css/8362fc69dfe9b692.css",
       "static/chunks/app/layout-88d54154fc665de6.js"
     ],
+    "/page": [
+      "static/chunks/webpack-58c976698db3bbad.js",
+      "static/chunks/fd9d1056-b1ae832bb12e1ac0.js",
+      "static/chunks/69-913a4f8ec91f6d37.js",
+      "static/chunks/main-app-e2763dcf7f10430d.js",
+      "static/chunks/799-acc38fd62901f43f.js",
+      "static/chunks/126-b1aef3156e4adfca.js",
+      "static/chunks/162-c9e9dbc88c31a3f5.js",
+      "static/chunks/866-7ce61ee921c969aa.js",
+      "static/chunks/app/page-2e15e41b3eefc9e9.js"
+    ],
+    "/register/page": [
+      "static/chunks/webpack-58c976698db3bbad.js",
+      "static/chunks/fd9d1056-b1ae832bb12e1ac0.js",
+      "static/chunks/69-913a4f8ec91f6d37.js",
+      "static/chunks/main-app-e2763dcf7f10430d.js",
+      "static/chunks/799-acc38fd62901f43f.js",
+      "static/chunks/app/register/page-9dce8aa57728eecb.js"
+    ],
     "/dashboard/page": [
       "static/chunks/webpack-58c976698db3bbad.js",
       "static/chunks/fd9d1056-b1ae832bb12e1ac0.js",
@@ -38,25 +57,6 @@
       "static/chunks/126-b1aef3156e4adfca.js",
       "static/chunks/792-abd555222918cf43.js",
       "static/chunks/app/login/page-a30d2d4c6c649b99.js"
-    ],
-    "/page": [
-      "static/chunks/webpack-58c976698db3bbad.js",
-      "static/chunks/fd9d1056-b1ae832bb12e1ac0.js",
-      "static/chunks/69-913a4f8ec91f6d37.js",
-      "static/chunks/main-app-e2763dcf7f10430d.js",
-      "static/chunks/799-acc38fd62901f43f.js",
-      "static/chunks/126-b1aef3156e4adfca.js",
-      "static/chunks/162-c9e9dbc88c31a3f5.js",
-      "static/chunks/866-7ce61ee921c969aa.js",
-      "static/chunks/app/page-2e15e41b3eefc9e9.js"
-    ],
-    "/register/page": [
-      "static/chunks/webpack-58c976698db3bbad.js",
-      "static/chunks/fd9d1056-b1ae832bb12e1ac0.js",
-      "static/chunks/69-913a4f8ec91f6d37.js",
-      "static/chunks/main-app-e2763dcf7f10430d.js",
-      "static/chunks/799-acc38fd62901f43f.js",
-      "static/chunks/app/register/page-9dce8aa57728eecb.js"
     ]
   }
 }
