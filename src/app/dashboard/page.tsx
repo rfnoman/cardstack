@@ -39,29 +39,6 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <nav className="bg-white shadow">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 justify-between">
-            <div className="flex">
-              <div className="flex flex-shrink-0 items-center">
-                <span className="text-2xl font-bold text-indigo-600">CardStack</span>
-              </div>
-            </div>
-            <div className="flex items-center">
-              <Button onClick={handleUpload}>
-                Upload Card
-              </Button>
-              <Button
-                onClick={handleSignOut}
-                className="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-              >
-                Sign out
-              </Button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white shadow rounded-lg p-6">
           <div className="flex justify-between items-center">
