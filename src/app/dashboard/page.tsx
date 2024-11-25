@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { Modal } from '@/components/ui/Modal';
+import { AddCardForm } from '@/components/AddCardForm';
 import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
@@ -21,9 +23,29 @@ export default function DashboardPage() {
   const router = useRouter();
   const [cards, setCards] = useState<BusinessCard[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleUpload = async () => {
-    // TODO: Implement file upload
+  const handleAddCard = async (data: Omit<BusinessCard, 'id'>) => {
+    try {
+      const response = await fetch('/api/cards', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to add card');
+      }
+
+      const newCard = await response.json();
+      setCards((prev) => [...prev, newCard]);
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Error adding card:', error);
+      // TODO: Add proper error handling
+    }
   };
 
   const handleSignOut = async () => {
@@ -43,9 +65,10 @@ export default function DashboardPage() {
         <div className="bg-white shadow rounded-lg p-6">
           <div className="flex justify-between items-center">
             <h1 className="text-3xl font-bold">Your Business Cards</h1>
+            <Button onClick={() => setIsModalOpen(true)}>Add Card</Button>
           </div>
 
-          <div className="max-w-md">
+          <div className="max-w-md mt-6">
             <Input
               type="search"
               placeholder="Search cards..."
@@ -56,14 +79,14 @@ export default function DashboardPage() {
           </div>
 
           {filteredCards.length === 0 ? (
-            <Card>
+            <Card className="mt-6">
               <CardContent className="flex flex-col items-center justify-center py-12">
                 <p className="text-lg text-gray-600 mb-4">No business cards yet</p>
-                <Button onClick={handleUpload}>Upload your first card</Button>
+                <Button onClick={() => setIsModalOpen(true)}>Add your first card</Button>
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
               {filteredCards.map((card) => (
                 <Card key={card.id} className="hover:shadow-lg transition-shadow">
                   {card.imageUrl && (
@@ -105,6 +128,17 @@ export default function DashboardPage() {
           )}
         </div>
       </main>
+
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Add Business Card"
+      >
+        <AddCardForm
+          onSubmit={handleAddCard}
+          onClose={() => setIsModalOpen(false)}
+        />
+      </Modal>
     </div>
   );
 }
