@@ -177,7 +177,7 @@ export default function DashboardPage() {
                 </Button>
               </div>
               {card.image ? (
-                <div className="relative h-48 bg-gray-100">
+                <div className="relative bg-gray-100">
                   <img
                     src={card.image}
                     alt={`${card.name}'s business card`}

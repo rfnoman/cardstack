@@ -66,7 +66,7 @@ export default function CardList() {
           className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition-shadow"
         >
           {card.image && (
-            <div className="relative w-full h-48 bg-gray-50">
+            <div className="relative w-full bg-gray-50">
               <Image
                 src={card.image}
                 alt={`${card.name}'s business card`}
