@@ -1,109 +1,141 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { CameraCapture } from '@/components/CameraCapture';
+import { CameraIcon } from '@heroicons/react/24/outline';
 
 interface AddCardFormProps {
   onSubmit: (data: {
-    name: string;
+    fullName: string;
     company: string;
     email: string;
     phone: string;
+    image: string | null;
   }) => void;
-  onClose: () => void;
+  onCancel: () => void;
 }
 
-export function AddCardForm({ onSubmit, onClose }: AddCardFormProps) {
+export function AddCardForm({ onSubmit, onCancel }: AddCardFormProps) {
+  const [showCamera, setShowCamera] = useState(false);
+  const [cardImage, setCardImage] = useState<string | null>(null);
   const [formData, setFormData] = useState({
-    name: '',
+    fullName: '',
     company: '',
     email: '',
     phone: '',
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(formData);
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('Submitting form with image:', !!cardImage);
+    onSubmit({ ...formData, image: cardImage });
+  };
+
+  const handleCapture = (imageData: string) => {
+    console.log('Image captured, length:', imageData.length);
+    setCardImage(imageData);
+    setShowCamera(false);
+  };
+
+  const handleStartCamera = () => {
+    console.log('Starting camera capture');
+    setShowCamera(true);
+  };
+
+  const handleCancelCamera = () => {
+    console.log('Canceling camera capture');
+    setShowCamera(false);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <label
-          htmlFor="name"
-          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-        >
-          Full Name
-        </label>
-        <Input
-          id="name"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          required
-        />
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="space-y-4">
+        {showCamera ? (
+          <div className="bg-gray-50 -mx-6 -mt-6 p-6">
+            <CameraCapture onCapture={handleCapture} />
+            <div className="mt-4 flex justify-end">
+              <Button type="button" variant="outline" onClick={handleCancelCamera}>
+                Cancel
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {cardImage ? (
+              <div className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden">
+                <img
+                  src={cardImage}
+                  alt="Captured business card"
+                  className="w-full h-full object-cover"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="absolute bottom-2 right-2"
+                  onClick={handleStartCamera}
+                >
+                  Retake
+                </Button>
+              </div>
+            ) : (
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full h-32 flex flex-col items-center justify-center space-y-2"
+                onClick={handleStartCamera}
+              >
+                <CameraIcon className="h-8 w-8" />
+                <span>Capture Business Card</span>
+              </Button>
+            )}
+
+            <Input
+              name="fullName"
+              placeholder="Full Name"
+              value={formData.fullName}
+              onChange={handleInputChange}
+              required
+            />
+            <Input
+              name="company"
+              placeholder="Company"
+              value={formData.company}
+              onChange={handleInputChange}
+            />
+            <Input
+              name="email"
+              type="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={handleInputChange}
+            />
+            <Input
+              name="phone"
+              type="tel"
+              placeholder="Phone"
+              value={formData.phone}
+              onChange={handleInputChange}
+            />
+          </div>
+        )}
       </div>
 
-      <div className="space-y-2">
-        <label
-          htmlFor="company"
-          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-        >
-          Company
-        </label>
-        <Input
-          id="company"
-          name="company"
-          value={formData.company}
-          onChange={handleChange}
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <label
-          htmlFor="email"
-          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-        >
-          Email
-        </label>
-        <Input
-          id="email"
-          name="email"
-          type="email"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <label
-          htmlFor="phone"
-          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-        >
-          Phone
-        </label>
-        <Input
-          id="phone"
-          name="phone"
-          type="tel"
-          value={formData.phone}
-          onChange={handleChange}
-          required
-        />
-      </div>
-
-      <div className="flex justify-end space-x-4 pt-4">
-        <Button variant="outline" type="button" onClick={onClose}>
-          Cancel
-        </Button>
-        <Button type="submit">Add Card</Button>
-      </div>
+      {!showCamera && (
+        <div className="flex justify-end space-x-3">
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button type="submit" disabled={!formData.fullName}>
+            Save Card
+          </Button>
+        </div>
+      )}
     </form>
   );
 }
