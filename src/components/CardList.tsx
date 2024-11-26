@@ -66,12 +66,13 @@ export default function CardList() {
           className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition-shadow"
         >
           {card.image && (
-            <div className="relative w-full" style={{ aspectRatio: '1.75' }}>
+            <div className="relative w-full h-48 bg-gray-50">
               <Image
                 src={card.image}
                 alt={`${card.name}'s business card`}
                 fill
-                className="object-cover"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="object-contain p-2"
                 onError={(e) => {
                   console.error('Image failed to load:', card.image);
                   e.currentTarget.style.display = 'none';
