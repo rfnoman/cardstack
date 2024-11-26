@@ -8,4 +8,4 @@ npx prisma generate
 npx prisma migrate deploy
 
 # Build the Next.js application
-npm run build
+next build
