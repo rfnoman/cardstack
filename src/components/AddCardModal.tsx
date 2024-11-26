@@ -35,9 +35,7 @@ export default function AddCardModal({ isOpen, onClose, userId }: AddCardModalPr
         setImageUrl(imageSrc);
         setLoading(true);
         try {
-          const worker = await createWorker();
-          await worker.loadLanguage('eng');
-          await worker.initialize('eng');
+          const worker = await createWorker('eng');
           const { data: { text } } = await worker.recognize(imageSrc);
           await worker.terminate();
 

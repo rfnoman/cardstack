@@ -12,31 +12,35 @@ interface Card {
   phone?: string;
   website?: string;
   address?: string;
-  imageUrl?: string;
+  image?: string;
   notes?: string;
 }
 
 export default function CardList() {
   const [cards, setCards] = useState<Card[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const fetchCards = async () => {
+      try {
+        const response = await fetch('/api/cards');
+        if (!response.ok) {
+          throw new Error('Failed to fetch cards');
+        }
+        const data = await response.json();
+        console.log('Fetched cards:', data); // Debug log
+        setCards(data);
+      } catch (err) {
+        console.error('Error fetching cards:', err);
+        setError('Failed to load cards');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchCards();
   }, []);
-
-  const fetchCards = async () => {
-    try {
-      const response = await fetch('/api/cards');
-      if (response.ok) {
-        const data = await response.json();
-        setCards(data);
-      }
-    } catch (error) {
-      console.error('Error fetching cards:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (loading) {
     return (
@@ -61,13 +65,17 @@ export default function CardList() {
           key={card.id}
           className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition-shadow"
         >
-          {card.imageUrl && (
+          {card.image && (
             <div className="relative w-full" style={{ aspectRatio: '1.75' }}>
               <Image
-                src={card.imageUrl}
+                src={card.image}
                 alt={`${card.name}'s business card`}
                 fill
                 className="object-cover"
+                onError={(e) => {
+                  console.error('Image failed to load:', card.image);
+                  e.currentTarget.style.display = 'none';
+                }}
               />
             </div>
           )}

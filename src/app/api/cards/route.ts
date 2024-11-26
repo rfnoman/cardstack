@@ -3,6 +3,8 @@ import { getServerSession } from 'next-auth';
 import { db } from '@/lib/db';
 import { authOptions } from '@/lib/auth';
 import { saveBase64Image, deleteImage } from '@/lib/utils/file';
+import path from 'path';
+import fs from 'fs';
 
 export async function GET(req: Request) {
   try {
@@ -33,19 +35,33 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
+    console.log('Session:', session);
+    
     if (!session?.user?.id) {
+      console.log('No user ID in session');
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
     const { name, company, email, phone, image } = await req.json();
-    console.log('Received image data:', !!image);
+    console.log('Request data:', { name, company, email, phone, hasImage: !!image });
+    console.log('User ID from session:', session.user.id);
 
     // Save image if provided
     let imageUrl = null;
     if (image) {
       try {
         imageUrl = saveBase64Image(image);
-        console.log('Saved image, URL:', imageUrl);
+        console.log('Image saved with URL:', imageUrl);
+        
+        // Verify the file exists
+        const filePath = path.join(process.cwd(), 'public', imageUrl);
+        if (!fs.existsSync(filePath)) {
+          console.error('Image file not found at:', filePath);
+          return NextResponse.json(
+            { message: 'Error saving image: File not found' },
+            { status: 500 }
+          );
+        }
       } catch (error) {
         console.error('Error saving image:', error);
         return NextResponse.json(
@@ -55,13 +71,26 @@ export async function POST(req: Request) {
       }
     }
 
+    // Verify user exists before creating card
+    const user = await db.user.findUnique({
+      where: { id: session.user.id }
+    });
+
+    if (!user) {
+      console.error('User not found:', session.user.id);
+      return NextResponse.json(
+        { message: 'User not found' },
+        { status: 404 }
+      );
+    }
+
     const card = await db.card.create({
       data: {
         name,
         company,
         email,
         phone,
-        imageUrl,
+        image: imageUrl,
         userId: session.user.id,
       },
     });
@@ -114,8 +143,8 @@ export async function DELETE(req: Request) {
     }
 
     // Delete the image file if it exists
-    if (card.imageUrl) {
-      deleteImage(card.imageUrl);
+    if (card.image) {
+      deleteImage(card.image);
     }
 
     // Delete the card from database

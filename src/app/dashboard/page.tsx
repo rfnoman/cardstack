@@ -16,7 +16,7 @@ interface BusinessCard {
   company?: string | null;
   email?: string | null;
   phone?: string | null;
-  imageUrl?: string | null;
+  image?: string | null;
 }
 
 export default function DashboardPage() {
@@ -176,10 +176,10 @@ export default function DashboardPage() {
                   <TrashIcon className="h-4 w-4" />
                 </Button>
               </div>
-              {card.imageUrl ? (
+              {card.image ? (
                 <div className="relative h-48 bg-gray-100">
                   <img
-                    src={card.imageUrl}
+                    src={card.image}
                     alt={`${card.name}'s business card`}
                     className="w-full h-full object-contain"
                   />
