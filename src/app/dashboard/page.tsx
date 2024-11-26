@@ -27,6 +27,8 @@ export default function DashboardPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [cardToDelete, setCardToDelete] = useState<string | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const fetchCards = async () => {
     try {
@@ -82,11 +84,16 @@ export default function DashboardPage() {
   };
 
   const handleDeleteCard = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this card?')) return;
+    setCardToDelete(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!cardToDelete) return;
     
     setIsDeleting(true);
     try {
-      const response = await fetch(`/api/cards?id=${id}`, {
+      const response = await fetch(`/api/cards?id=${cardToDelete}`, {
         method: 'DELETE',
       });
 
@@ -99,7 +106,14 @@ export default function DashboardPage() {
       console.error('Error deleting card:', error);
     } finally {
       setIsDeleting(false);
+      setShowDeleteModal(false);
+      setCardToDelete(null);
     }
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteModal(false);
+    setCardToDelete(null);
   };
 
   const handleSignOut = async () => {
@@ -150,13 +164,14 @@ export default function DashboardPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredCards.map((card) => (
-            <Card key={card.id} className="overflow-hidden flex flex-col group">
-              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <Card key={card.id} className="overflow-hidden flex flex-col group relative">
+              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                 <Button
                   variant="destructive"
                   size="sm"
                   onClick={() => handleDeleteCard(card.id)}
                   disabled={isDeleting}
+                  className="hover:bg-red-600 transition-colors"
                 >
                   <TrashIcon className="h-4 w-4" />
                 </Button>
@@ -182,69 +197,25 @@ export default function DashboardPage() {
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth={1}
-                        d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                       />
                     </svg>
-                    <span className="mt-2 block text-sm">No image</span>
+                    <p className="mt-2">No image</p>
                   </div>
                 </div>
               )}
-              <CardHeader>
-                <CardTitle>
-                  <h3 className="text-lg font-semibold">{card.name}</h3>
-                  {card.company && (
-                    <p className="text-sm text-gray-500">{card.company}</p>
-                  )}
-                </CardTitle>
-                <div className="space-y-1 text-sm">
-                  {card.email && (
-                    <p>
-                      <a
-                        href={`mailto:${card.email}`}
-                        className="text-blue-600 hover:underline flex items-center space-x-1"
-                      >
-                        <svg
-                          className="h-4 w-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                          />
-                        </svg>
-                        <span>{card.email}</span>
-                      </a>
-                    </p>
-                  )}
-                  {card.phone && (
-                    <p>
-                      <a
-                        href={`tel:${card.phone}`}
-                        className="text-blue-600 hover:underline flex items-center space-x-1"
-                      >
-                        <svg
-                          className="h-4 w-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                          />
-                        </svg>
-                        <span>{card.phone}</span>
-                      </a>
-                    </p>
-                  )}
-                </div>
-              </CardHeader>
+              <CardContent className="flex-1 p-4">
+                <h3 className="font-semibold text-lg">{card.name}</h3>
+                {card.company && (
+                  <p className="text-gray-600">{card.company}</p>
+                )}
+                {card.email && (
+                  <p className="text-gray-600 text-sm">{card.email}</p>
+                )}
+                {card.phone && (
+                  <p className="text-gray-600 text-sm">{card.phone}</p>
+                )}
+              </CardContent>
             </Card>
           ))}
         </div>
@@ -255,7 +226,45 @@ export default function DashboardPage() {
         onClose={() => setIsModalOpen(false)}
         title="Add Business Card"
       >
-        <AddCardForm onSubmit={handleAddCard} onCancel={() => setIsModalOpen(false)} />
+        <AddCardForm
+          onSubmit={handleAddCard}
+          onCancel={() => setIsModalOpen(false)}
+        />
+      </Modal>
+
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={cancelDelete}
+        title="Delete Card"
+      >
+        <div className="space-y-4">
+          <p className="text-gray-600">
+            Are you sure you want to delete this card? This action cannot be undone.
+          </p>
+          <div className="flex justify-end space-x-3">
+            <Button
+              variant="outline"
+              onClick={cancelDelete}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? (
+                <div className="flex items-center space-x-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  <span>Deleting...</span>
+                </div>
+              ) : (
+                'Delete'
+              )}
+            </Button>
+          </div>
+        </div>
       </Modal>
     </div>
   );

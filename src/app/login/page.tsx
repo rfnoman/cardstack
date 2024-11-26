@@ -2,17 +2,26 @@
 
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription } from '@/components/ui/Card';
 import { Logo } from '@/components/ui/Logo'; // Added import statement for Logo component
+import { useSearchParams } from 'next/navigation';
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (searchParams?.get('registered') === 'true') {
+      setSuccess('Registration successful! Please sign in with your new account.');
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -60,6 +69,11 @@ export default function LoginPage() {
             {error && (
               <div className="bg-red-50 text-red-500 p-3 rounded-md text-sm">
                 {error}
+              </div>
+            )}
+            {success && (
+              <div className="bg-green-50 text-green-600 p-3 rounded-md text-sm">
+                {success}
               </div>
             )}
             <div className="space-y-2">

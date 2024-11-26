@@ -36,12 +36,14 @@ export default function RegisterPage() {
         body: JSON.stringify({ email, password }),
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        const data = await res.json();
         throw new Error(data.message || 'Something went wrong');
       }
 
-      window.location.href = '/login';
+      // Registration successful, redirect to login
+      window.location.href = '/login?registered=true';
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
